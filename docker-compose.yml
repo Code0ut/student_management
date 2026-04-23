@@ -9,6 +9,7 @@ services:
       - MYSQL_DATABASE=stude_mgmt
     ports:
       - "3306:3306"
+    restart: always
 
   app:
     build: .
@@ -16,9 +17,10 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=mysql+aiomysql://root:password@db:3306/stude_mgmt
-      - SECRET_KEY=raqa-67quyeta-8hgybhskalminAkar8*kar
+      - SECRET_KEY=raqa-45yetQwa-8hgybhskalmdhinAkar8*kga9tr
     depends_on:
       - db
+    restart: always
 
 volumes:
   mysql_data:
