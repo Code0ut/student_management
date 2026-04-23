@@ -6,16 +6,16 @@ class Student(Base):
     __tablename__ = "students"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String(100))
     age = Column(Integer)
-    email = Column(String, unique=True)
+    email = Column(String(255), unique=True)
 
 class Course(Base):
     __tablename__ = "courses"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-    description = Column(String)
+    title = Column(String(200))
+    description = Column(String(500))
 
 class Enrollment(Base):
     __tablename__ = "enrollments"

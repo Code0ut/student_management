@@ -1,4 +1,4 @@
-from sqlalchemy.future import select
+from sqlalchemy import select
 from models import Student, Course, Enrollment
 
 async def create_student(db, student):
@@ -27,10 +27,11 @@ async def enroll_student(db, enrollment):
     new_enroll = Enrollment(**enrollment.dict())
     db.add(new_enroll)
     await db.commit()
+    await db.refresh(new_enroll)
     return new_enroll
 
 async def get_student_courses(db, student_id):
     result = await db.execute(
         select(Enrollment.course_id).where(Enrollment.student_id == student_id)
     )
-    return [row[0] for row in result.fetchall()]
+    return result.scalars().all()
