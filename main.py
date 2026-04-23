@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi.staticfiles import StaticFiles
 import models, schemas, crud
 from database import engine
 from dependencies import get_db
@@ -82,3 +82,5 @@ async def delete_course(course_id: int, db: AsyncSession = Depends(get_db)):
 @app.get("/enrollments/")
 async def get_all_enrollments(db: AsyncSession = Depends(get_db)):
     return await crud.get_all_enrollments(db)
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="static")

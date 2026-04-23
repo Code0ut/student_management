@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI';
+            margin: 0;
+            background: #f0f2f5;
+        }
+
+        header {
+            background: #1e3a8a;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add { background: #10b981; color: white; }
+        .update { background: #f59e0b; color: white; }
+        .delete { background: #ef4444; color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #1e3a8a;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>🎓 Teacher Dashboard</header>
+
+<div class="container">
+
+    <!-- Add Student -->
+    <div class="card">
+        <h2>Add Student</h2>
+        <input id="name" placeholder="Name">
+        <input id="age" type="number" placeholder="Age">
+        <input id="email" placeholder="Email">
+        <button class="add" onclick="addStudent()">Add</button>
+    </div>
+
+    <!-- Student List -->
+    <div class="card">
+        <h2>Students</h2>
+        <button onclick="loadStudents()">Refresh</button>
+        <table id="studentTable">
+            <tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Actions</th>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Courses -->
+    <div class="card">
+        <h2>Add Course</h2>
+        <input id="c_title" placeholder="Title">
+        <input id="c_desc" placeholder="Description">
+        <button class="add" onclick="addCourse()">Add</button>
+    </div>
+
+    <!-- Enrollment -->
+    <div class="card">
+        <h2>Enroll Student</h2>
+        <input id="student_id" placeholder="Student ID">
+        <input id="course_id" placeholder="Course ID">
+        <button class="add" onclick="enroll()">Enroll</button>
+    </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const BASE_URL = "http://13.48.48.74:8000"; // change if EC2
+
+function showToast(msg) {
+    let t = document.getElementById("toast");
+    t.innerText = msg;
+    t.style.display = "block";
+    setTimeout(() => t.style.display = "none", 2000);
+}
+
+async function loadStudents() {
+    let res = await fetch(`${BASE_URL}/students/`);
+    let data = await res.json();
+
+    let table = document.getElementById("studentTable");
+    table.innerHTML = `
+        <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Actions</th>
+        </tr>
+    `;
+
+    data.forEach(s => {
+        table.innerHTML += `
+        <tr>
+            <td>${s.id}</td>
+            <td>${s.name}</td>
+            <td>${s.email}</td>
+            <td>
+                <button class="update" onclick="updateStudent(${s.id})">Edit</button>
+                <button class="delete" onclick="deleteStudent(${s.id})">Delete</button>
+            </td>
+        </tr>`;
+    });
+}
+
+async function addStudent() {
+    await fetch(`${BASE_URL}/students/`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            name: name.value,
+            age: parseInt(age.value),
+            email: email.value
+        })
+    });
+    showToast("Student added");
+    loadStudents();
+}
+
+async function deleteStudent(id) {
+    await fetch(`${BASE_URL}/students/${id}`, { method: "DELETE" });
+    showToast("Deleted");
+    loadStudents();
+}
+
+async function updateStudent(id) {
+    let newName = prompt("Enter new name:");
+    if (!newName) return;
+
+    await fetch(`${BASE_URL}/students/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            name: newName,
+            age: 20,
+            email: "updated@email.com"
+        })
+    });
+    showToast("Updated");
+    loadStudents();
+}
+
+async function addCourse() {
+    await fetch(`${BASE_URL}/courses/`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            title: c_title.value,
+            description: c_desc.value
+        })
+    });
+    showToast("Course added");
+}
+
+async function enroll() {
+    await fetch(`${BASE_URL}/enrollments`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            student_id: parseInt(student_id.value),
+            course_id: parseInt(course_id.value)
+        })
+    });
+    showToast("Enrolled successfully");
+}
+
+// auto load on start
+loadStudents();
+</script>
+
+</body>
+</html>
