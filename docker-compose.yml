@@ -2,25 +2,24 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:15
+    image: mysql:8.0
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - mysql_data:/var/lib/mysql/
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=stude_mgmt
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=stude_mgmt
     ports:
-      - "5432:5432"
+      - "3306:3306"
 
   app:
     build: .
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/stude_mgmt
+      - DATABASE_URL=mysql+aiomysql://root:password@db:3306/stude_mgmt
       - SECRET_KEY=raqa-67quyeta-8hgybhskalminAkar8*kar
     depends_on:
       - db
 
 volumes:
-  postgres_data:
+  mysql_data:
