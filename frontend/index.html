@@ -133,7 +133,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const BASE_URL = "http://13.48.48.74:8000"; // change if EC2
+const BASE_URL = "http://13.53.35.236:8000"; // change if EC2
 
 function showToast(msg) {
     let t = document.getElementById("toast");
@@ -168,16 +168,32 @@ async function loadStudents() {
 }
 
 async function addStudent() {
-    await fetch(`${BASE_URL}/students/`, {
+    let payload = {
+        name: name.value.trim(),
+        age: parseInt(age.value),
+        email: email.value.trim()
+    };
+
+    // ✅ Validation
+    if (!payload.name || !payload.email || isNaN(payload.age)) {
+        alert("Please enter valid name, age and email");
+        return;
+    }
+
+    let res = await fetch(`${BASE_URL}/students/`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            name: name.value,
-            age: parseInt(age.value),
-            email: email.value
-        })
+        body: JSON.stringify(payload)
     });
-    showToast("Student added");
+
+    if (!res.ok) {
+        let error = await res.json();
+        console.log(error);
+        alert("Error: " + JSON.stringify(error));
+        return;
+    }
+
+    showToast("Student added successfully ✅");
     loadStudents();
 }
 
